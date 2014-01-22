@@ -26,10 +26,8 @@ if sys.version > '3':
 else:
     PY3 = False
 
-if PY3:
-    import subprocess as commands
-else:
-    import commands
+import subprocess
+
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib, get_python_version
 
@@ -48,17 +46,6 @@ def pkgconfig(*packages):
     # map pkg-config output to kwargs for distutils.core.Extension
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
-    # for package in packages:
-    #     (pcstatus, pcoutput) = commands.getstatusoutput(
-    #         "pkg-config --libs --cflags %s" % package)
-    #     if pcstatus == 0:
-    #         break
-    # else:
-    #     sys.exit("pkg-config failed for %s; "
-    #              "most recent output was:\n%s" %
-    #              (", ".join(packages), pcoutput))
-
-    import subprocess
     pcoutput = ""
     for package in packages:
         pcoutput += subprocess.check_output(
@@ -81,7 +68,6 @@ def pkgconfig(*packages):
 
     return kwargs
 
-#lua_pkgconfig = pkgconfig('lua', 'lua' + LUAVERSION,'python-' + PYTHONVERSION)
 lua_pkgconfig = pkgconfig('lua')
 
 setup(name="lunatic-python",
@@ -98,9 +84,6 @@ Python, Python inside Lua, Lua inside Python inside Lua, Python inside Lua
 inside Python, and so on.
 """,
       ext_modules=[
-        # Extension("lua.python",
-        #           ["src/pythoninlua.c", "src/luainpython.c"],
-        #           **lua_pkgconfig),
         Extension("lua",
                   ["src/pythoninlua.c", "src/luainpython.c"],
                   **lua_pkgconfig),
