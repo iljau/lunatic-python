@@ -30,15 +30,22 @@ def pkgconfig(*packages):
     # map pkg-config output to kwargs for distutils.core.Extension
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
+    # for package in packages:
+    #     (pcstatus, pcoutput) = commands.getstatusoutput(
+    #         "pkg-config --libs --cflags %s" % package)
+    #     if pcstatus == 0:
+    #         break
+    # else:
+    #     sys.exit("pkg-config failed for %s; "
+    #              "most recent output was:\n%s" %
+    #              (", ".join(packages), pcoutput))
+
+    import subprocess
+    pcoutput = ""
     for package in packages:
-        (pcstatus, pcoutput) = commands.getstatusoutput(
-            "pkg-config --libs --cflags %s" % package)
-        if pcstatus == 0:
-            break
-    else:
-        sys.exit("pkg-config failed for %s; "
-                 "most recent output was:\n%s" %
-                 (", ".join(packages), pcoutput))
+        pcoutput += subprocess.check_output(
+            "pkg-config --libs --cflags %s" % package
+        )
 
     kwargs = {}
     for token in pcoutput.split():
@@ -72,9 +79,9 @@ Python, Python inside Lua, Lua inside Python inside Lua, Python inside Lua
 inside Python, and so on.
 """,
       ext_modules=[
-        Extension("lua-python",
-                  ["src/pythoninlua.c", "src/luainpython.c"],
-                  **lua_pkgconfig),
+        # Extension("lua.python",
+        #           ["src/pythoninlua.c", "src/luainpython.c"],
+        #           **lua_pkgconfig),
         Extension("lua",
                   ["src/pythoninlua.c", "src/luainpython.c"],
                   **lua_pkgconfig),
