@@ -1,19 +1,19 @@
 #!/usr/bin/python
 
-from distutils.cygwinccompiler import Mingw32CCompiler
-
-
-# BEGIN monkey-patch mingw32 compiler to not link against msvcrt90.dll
+# monkey-patch mingw32 compiler class not to link against msvcrt90.dll
 #
+from distutils.cygwinccompiler import Mingw32CCompiler
+import distutils.cygwinccompiler
+
+
 class Mingw32CCompilerPatched(Mingw32CCompiler):
     def __init__(self, verbose=0, dry_run=0, force=0):
         Mingw32CCompiler.__init__(self, verbose, dry_run, force)
 
-        # wan't to undo following line
+        # undo following line:
         # http://hg.python.org/cpython/file/3a1db0d2747e/Lib/distutils/cygwinccompiler.py#l343
         self.dll_libraries = []
 
-import distutils.cygwinccompiler
 distutils.cygwinccompiler.Mingw32CCompiler = Mingw32CCompilerPatched
 #
 # END monkey-patch
@@ -42,12 +42,15 @@ PYLIBDIR = [get_python_lib(standard_lib=True) + "/config"]
 LUALIBS = ["lua" + LUAVERSION]
 LUALIBDIR = []
 
+
 def pkgconfig(*packages):
     # map pkg-config output to kwargs for distutils.core.Extension
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
     pcoutput = ""
     for package in packages:
+        # raises exception if e.g. pkg-config is not found or returns
+        # some error
         pcoutput += subprocess.check_output(
             "pkg-config --libs --cflags %s" % package
         )
@@ -84,8 +87,8 @@ Python, Python inside Lua, Lua inside Python inside Lua, Python inside Lua
 inside Python, and so on.
 """,
       ext_modules=[
-        Extension("lua",
-                  ["src/pythoninlua.c", "src/luainpython.c"],
-                  **lua_pkgconfig),
-        ],
-      )
+          Extension("lua",
+                    ["src/pythoninlua.c", "src/luainpython.c"],
+                    **lua_pkgconfig),
+      ]
+)
