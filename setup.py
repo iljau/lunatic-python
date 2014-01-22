@@ -1,5 +1,23 @@
 #!/usr/bin/python
 
+from distutils.cygwinccompiler import Mingw32CCompiler
+
+
+# BEGIN monkey-patch mingw32 compiler to not link against msvcrt90.dll
+#
+class Mingw32CCompilerPatched(Mingw32CCompiler):
+    def __init__(self, verbose=0, dry_run=0, force=0):
+        Mingw32CCompiler.__init__(self, verbose, dry_run, force)
+
+        # wan't to undo following line
+        # http://hg.python.org/cpython/file/3a1db0d2747e/Lib/distutils/cygwinccompiler.py#l343
+        self.dll_libraries = []
+
+import distutils.cygwinccompiler
+distutils.cygwinccompiler.Mingw32CCompiler = Mingw32CCompilerPatched
+#
+# END monkey-patch
+
 import sys
 import os
 
@@ -63,7 +81,8 @@ def pkgconfig(*packages):
 
     return kwargs
 
-lua_pkgconfig = pkgconfig('lua', 'lua' + LUAVERSION,'python-' + PYTHONVERSION)
+#lua_pkgconfig = pkgconfig('lua', 'lua' + LUAVERSION,'python-' + PYTHONVERSION)
+lua_pkgconfig = pkgconfig('lua')
 
 setup(name="lunatic-python",
       version="1.0",
