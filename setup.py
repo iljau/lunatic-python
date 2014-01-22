@@ -71,6 +71,7 @@ def pkgconfig(*packages):
 
     return kwargs
 
+# lua_pkgconfig = pkgconfig('lua', 'lua' + LUAVERSION,'python-' + PYTHONVERSION)
 lua_pkgconfig = pkgconfig('lua')
 
 setup(name="lunatic-python",
@@ -87,6 +88,10 @@ Python, Python inside Lua, Lua inside Python inside Lua, Python inside Lua
 inside Python, and so on.
 """,
       ext_modules=[
+          # no idea how to get this to compile
+          # Extension("lua-python",
+          #         ["src/pythoninlua.c", "src/luainpython.c"],
+          #         **lua_pkgconfig),
           Extension("lua",
                     ["src/pythoninlua.c", "src/luainpython.c"],
                     **lua_pkgconfig),
